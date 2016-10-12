@@ -1,0 +1,27 @@
+// Ians introduction to Hadoop ---Hive 
+
+DROP TABLE irisflowers;
+CREATE EXTERNAL TABLE irisflowers (sepalwidth double, sepallength double, petalwidth double, petallength double, flower string)
+ROW FORMAT DELIMITED FIELDS TERMINATED BY ','
+STORED AS TEXTFILE LOCATION 'wasbs://istweetcont1@shphadoop1-ssh.azurehdinsight.net/hivein';
+# set using tez and run a query - show twice!
+set hive.execution.engine=tez;
+select flower, count(flower) from irisflowers group by flower;
+#set using mr - see the difference without the DAG
+set hive.execution.engine=mr;
+
+
+
+
+
+
+// pig script
+
+DATA = LOAD 'wasbs:///iris-multiclass.csv' using PigStorage(',') as (sepalwidth:float, sepallength:float, petalwidth:float, petallength:float, flower:chararray);
+FLOWERS = FOREACH DATA GENERATE flower;
+IRISGROUP = GROUP FLOWERS BY flower;
+COUNTIRIS = FOREACH IRISGROUP GENERATE group, COUNT(FLOWERS.flower) as count;
+DUMP COUNTIRIS;
+
+hadoop fs -put C:/Users/iasharp/Desktop/Data/iris.csv iris-multiclass.csv
+ 
